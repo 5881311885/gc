@@ -1,0 +1,7 @@
+.logo {
+  width:120px;
+  margin:40px auto 20px auto; /* lowered further down */
+  display:block;
+  position:relative;
+  z-index:40; /* ensures it sits above the overlay blur */
+}

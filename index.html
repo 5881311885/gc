@@ -85,7 +85,7 @@
   </style>
 </head>
 <body>
-  <!-- GIF logo at top -->
+  <!-- GIF logo at top (always visible) -->
   <img src="your-logo.gif" alt="Logo" class="logo" />
 
   <div class="image-wrap">
@@ -93,21 +93,21 @@
     <img id="mainImage" class="main-image" src="your-image.png" alt="Protected image" />
   </div>
 
+  <!-- Overlay (doesn't cover the logo anymore) -->
   <div id="overlay" class="overlay">
     <div class="panel">
       <h2>Enter passcode to view</h2>
       <p>Type the passcode and press Unlock.</p>
-
       <form id="passForm" onsubmit="return false;">
         <div class="input-row">
           <input id="passInput" type="password" placeholder="Passcode" required />
           <button id="submitBtn" type="submit">Unlock</button>
         </div>
       </form>
-
       <div id="msg" class="msg"></div>
     </div>
   </div>
+</body>
 
 <script>
 const storedHash = "9b0eb22aef89516d6fb4b31ccf008a68abe0d10a3fc606316389613eccf96854"; // SHA-256("letmein123")

@@ -1,95 +1,161 @@
+@@ -1,157 +1,157 @@
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Side Buttons Layout</title>
+  <title>Protected PNG — Passcode</title>
   <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      background: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
+    /* Full black background, no grey container */
+    html,body {
+      height:100%;
+      margin:0;
+      font-family: system-ui, sans-serif;
+      background:#000;
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
     }
 
-    /* main wrapper for left/right sides */
-    .side-container {
-      position: fixed;
-      top: 50%;
-      width: 100%;
-      transform: translateY(-50%);
-      display: flex;
-      justify-content: space-between;
-      padding: 0 80px; /* distance from screen edges */
+    /* Top logo */
+    .logo {
+      width:120px; /* adjust size */
+      margin:20px auto 10px auto;
+      display:block;
     }
 
-    /* individual columns (left / right) */
-    .side {
-      display: flex;
-      flex-direction: column;
-      gap: 150px; /* vertical spacing */
-      align-items: center;
+    /* image area */
+    .image-wrap {
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
     }
+    .main-image {
+      max-width:90%;
+      max-height:80%;
+      opacity:0;
+      transform: translateY(8px);
+      transition: opacity 900ms ease, transform 900ms ease;
+      pointer-events:none;
+      user-select:none;
+    }
+    .main-image.visible { opacity:1; transform: translateY(0); }
 
-    .side img {
-      width: 220px;
-      height: auto;
-      opacity: 0;
-      transition: transform 1s ease, opacity 1s ease;
-      filter: brightness(0.9);
-      cursor: pointer;
+    /* overlay lock screen */
+    .overlay {
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(4px);
+      transition: opacity 600ms ease, visibility 600ms;
+      z-index:30;
     }
+    .overlay.hidden { opacity:0; visibility:hidden; pointer-events:none; }
 
-    .side img:hover {
-      transform: scale(1.15);
-      filter: brightness(1.1);
+    .panel {
+      width:320px; max-width:90%;
+      padding:22px;
+      border-radius:10px;
+      background: rgba(255,255,255,0.05);
+      text-align:center;
     }
+    .panel h2 { margin:0 0 12px 0; font-size:18px; font-weight:600; }
+    .panel p { margin:0 0 16px 0; color:#ccc; font-size:13px; }
 
-    /* Start positions (off-screen) */
-    .side.left img {
-      transform: translateX(-400px) scale(0.7);
+    .input-row { display:flex; gap:8px; align-items:center; }
+    input[type="password"] {
+      flex:1; padding:10px 12px; border-radius:8px;
+      border:1px solid rgba(255,255,255,0.1);
+      background:rgba(255,255,255,0.05);
+      color:#fff;
+      font-size:15px;
     }
-    .side.right img {
-      transform: translateX(400px) scale(0.7);
+    button {
+      padding:10px 14px; border-radius:8px;
+      border:0; background:#28a; color:#fff;
+      font-weight:600; cursor:pointer;
     }
+    .msg { margin-top:12px; height:18px; font-size:13px; color:#ffcccb; }
   </style>
 </head>
 <body>
+  <!-- GIF logo at top -->
+  <!-- GIF logo at top (always visible) -->
+  <img src="your-logo.gif" alt="Logo" class="logo" />
 
-  <div class="side-container">
-    <div class="side left">
-      <img src="1.png" alt="1">
-      <img src="2.png" alt="2">
-      <img src="3.png" alt="3">
-    </div>
-    <div class="side right">
-      <img src="4.png" alt="4">
-      <img src="5.png" alt="5">
-      <img src="6.png" alt="6">
-    </div>
+  <div class="image-wrap">
+    <!-- Protected PNG -->
+    <img id="mainImage" class="main-image" src="your-image.png" alt="Protected image" />
   </div>
 
-  <script>
-    // Animate pairs (1–4, 2–5, 3–6) sliding from sides
-    const leftImgs = document.querySelectorAll('.side.left img');
-    const rightImgs = document.querySelectorAll('.side.right img');
+  <!-- Overlay (doesn't cover the logo anymore) -->
+  <div id="overlay" class="overlay">
+    <div class="panel">
+      <h2>Enter passcode to view</h2>
+      <p>Type the passcode and press Unlock.</p>
 
-    function animatePair(i, delay) {
+      <form id="passForm" onsubmit="return false;">
+        <div class="input-row">
+          <input id="passInput" type="password" placeholder="Passcode" required />
+          <button id="submitBtn" type="submit">Unlock</button>
+        </div>
+      </form>
+
+      <div id="msg" class="msg"></div>
+    </div>
+  </div>
+</body>
+
+<script>
+const storedHash = "9b0eb22aef89516d6fb4b31ccf008a68abe0d10a3fc606316389613eccf96854"; // SHA-256("letmein123")
+
+function bufToHex(buffer) {
+  return Array.from(new Uint8Array(buffer))
+    .map(b => b.toString(16).padStart(2,'0')).join('');
+}
+async function sha256Hex(str) {
+  const data = new TextEncoder().encode(str);
+  const hashBuf = await crypto.subtle.digest('SHA-256', data);
+  return bufToHex(hashBuf);
+}
+
+const form = document.getElementById('passForm');
+const input = document.getElementById('passInput');
+const msg = document.getElementById('msg');
+const overlay = document.getElementById('overlay');
+const mainImage = document.getElementById('mainImage');
+const submitBtn = document.getElementById('submitBtn');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  submitBtn.disabled = true;
+  msg.textContent = "Checking…";
+  try {
+    const h = await sha256Hex(input.value);
+    if (h === storedHash) {
+      msg.style.color = "#bfffc9";
+      msg.textContent = "Passcode accepted.";
       setTimeout(() => {
-        leftImgs[i].style.opacity = 1;
-        leftImgs[i].style.transform = 'translateX(0) scale(1)';
-        rightImgs[i].style.opacity = 1;
-        rightImgs[i].style.transform = 'translateX(0) scale(1)';
-      }, delay);
+        overlay.classList.add('hidden');
+        mainImage.classList.add('visible');
+        input.value = "";
+      }, 400);
+    } else {
+      msg.style.color = "#ffb3b3";
+      msg.textContent = "Incorrect passcode.";
+      input.focus();
     }
-
-    animatePair(0, 300);
-    animatePair(1, 800);
-    animatePair(2, 1300);
-  </script>
-
+  } finally {
+    submitBtn.disabled = false;
+  }
+});
+</script>
 </body>
 </html>

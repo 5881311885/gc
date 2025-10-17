@@ -15,6 +15,7 @@
       flex-direction:column;
       align-items:center;
       justify-content:flex-start;
+      overflow:hidden;
     }
 
     .logo {
@@ -79,45 +80,40 @@
     }
     .msg { margin-top:12px; height:18px; font-size:13px; color:#ffcccb; }
 
-    /* Side buttons base */
-    .side-buttons {
+    /* ===============================
+       BUTTON GRID (3 ROWS, 2 COLUMNS)
+       =============================== */
+    .button-grid {
       position: fixed;
-      top: 50%;
-      transform: translateY(-50%);
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      z-index: 10;
+      top: 55%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 80px 180px; /* row-gap, column-gap */
       opacity: 0;
       pointer-events: none;
       transition: opacity 900ms ease, transform 900ms ease;
+      z-index: 10;
     }
-
-    .side-buttons.left {
-      left: 20px;
-      transform: translate(-60px, -50%) scale(0.8);
-    }
-    .side-buttons.right {
-      right: 20px;
-      transform: translate(60px, -50%) scale(0.8);
-    }
-
-    .side-buttons.visible {
+    .button-grid.visible {
       opacity: 1;
       pointer-events: auto;
-      transform: translateY(-50%) scale(1);
+      transform: translate(-50%, -50%) scale(1);
     }
 
-    .side-buttons img {
-      width: 60px;
+    .button-grid img {
+      width: 160px; /* significantly larger */
       height: auto;
-      border-radius: 10px;
+      border-radius: 14px;
       cursor: pointer;
-      transition: transform 0.3s ease, filter 0.3s ease;
+      transition: transform 0.4s ease, filter 0.4s ease;
       filter: brightness(0.9);
+      opacity: 0;
+      transform: scale(0.8);
     }
-    .side-buttons img:hover {
-      transform: scale(1.08);
+    .button-grid img:hover {
+      transform: scale(1.1);
       filter: brightness(1.1);
     }
   </style>
@@ -129,17 +125,14 @@
     <img id="mainImage" class="main-image" src="your-image.png" alt="Protected image" />
   </div>
 
-  <!-- Side PNG buttons -->
-  <div class="side-buttons left">
-    <img src="1.png" alt="Button 1" />
-    <img src="2.png" alt="Button 2" />
-    <img src="3.png" alt="Button 3" />
-  </div>
-
-  <div class="side-buttons right">
-    <img src="4.png" alt="Button 4" />
-    <img src="5.png" alt="Button 5" />
-    <img src="6.png" alt="Button 6" />
+  <!-- 3 rows × 2 columns of PNG buttons -->
+  <div id="buttonGrid" class="button-grid">
+    <img src="1.png" alt="1" />
+    <img src="4.png" alt="4" />
+    <img src="2.png" alt="2" />
+    <img src="5.png" alt="5" />
+    <img src="3.png" alt="3" />
+    <img src="6.png" alt="6" />
   </div>
 
   <!-- Overlay -->
@@ -176,8 +169,7 @@ const msg = document.getElementById('msg');
 const overlay = document.getElementById('overlay');
 const mainImage = document.getElementById('mainImage');
 const submitBtn = document.getElementById('submitBtn');
-const leftBtns = document.querySelector('.side-buttons.left');
-const rightBtns = document.querySelector('.side-buttons.right');
+const buttonGrid = document.getElementById('buttonGrid');
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -191,20 +183,21 @@ form.addEventListener('submit', async (e) => {
       setTimeout(() => {
         overlay.classList.add('hidden');
         mainImage.classList.add('visible');
-        leftBtns.classList.add('visible');
-        rightBtns.classList.add('visible');
+        buttonGrid.classList.add('visible');
         input.value = "";
 
-        // Staggered PNG animation
-        [...leftBtns.querySelectorAll('img'), ...rightBtns.querySelectorAll('img')].forEach((img, i) => {
-          img.style.opacity = 0;
-          img.style.transform = "scale(0.8)";
+        // Animate each row (pair) in sequence
+        const imgs = buttonGrid.querySelectorAll('img');
+        for (let i = 0; i < imgs.length; i += 2) {
           setTimeout(() => {
-            img.style.transition = "opacity 600ms ease, transform 600ms ease";
-            img.style.opacity = 1;
-            img.style.transform = "scale(1)";
-          }, 800 + i * 100);
-        });
+            imgs[i].style.transition = "opacity 600ms ease, transform 600ms ease";
+            imgs[i+1].style.transition = "opacity 600ms ease, transform 600ms ease";
+            imgs[i].style.opacity = 1;
+            imgs[i+1].style.opacity = 1;
+            imgs[i].style.transform = "scale(1)";
+            imgs[i+1].style.transform = "scale(1)";
+          }, 600 + i * 200);
+        }
 
       }, 400);
     } else {

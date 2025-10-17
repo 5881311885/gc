@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Protected PNG — Passcode</title>
   <style>
-    /* Full black background, no grey container */
     html,body {
       height:100%;
       margin:0;
@@ -18,14 +17,12 @@
       justify-content:flex-start;
     }
 
-    /* Top logo */
     .logo {
-      width:120px; /* adjust size */
+      width:120px;
       margin:20px auto 10px auto;
       display:block;
     }
 
-    /* image area */
     .image-wrap {
       flex:1;
       display:flex;
@@ -44,7 +41,6 @@
     }
     .main-image.visible { opacity:1; transform: translateY(0); }
 
-    /* overlay lock screen */
     .overlay {
       position:fixed;
       inset:0;
@@ -82,18 +78,71 @@
       font-weight:600; cursor:pointer;
     }
     .msg { margin-top:12px; height:18px; font-size:13px; color:#ffcccb; }
+
+    /* Side buttons base */
+    .side-buttons {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      z-index: 10;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 900ms ease, transform 900ms ease;
+    }
+
+    .side-buttons.left {
+      left: 20px;
+      transform: translate(-60px, -50%) scale(0.8);
+    }
+    .side-buttons.right {
+      right: 20px;
+      transform: translate(60px, -50%) scale(0.8);
+    }
+
+    .side-buttons.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(-50%) scale(1);
+    }
+
+    .side-buttons img {
+      width: 60px;
+      height: auto;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.3s ease, filter 0.3s ease;
+      filter: brightness(0.9);
+    }
+    .side-buttons img:hover {
+      transform: scale(1.08);
+      filter: brightness(1.1);
+    }
   </style>
 </head>
 <body>
-  <!-- GIF logo at top (always visible) -->
   <img src="your-logo.gif" alt="Logo" class="logo" />
 
   <div class="image-wrap">
-    <!-- Protected PNG -->
     <img id="mainImage" class="main-image" src="your-image.png" alt="Protected image" />
   </div>
 
-  <!-- Overlay (doesn't cover the logo anymore) -->
+  <!-- Side PNG buttons -->
+  <div class="side-buttons left">
+    <img src="1.png" alt="Button 1" />
+    <img src="2.png" alt="Button 2" />
+    <img src="3.png" alt="Button 3" />
+  </div>
+
+  <div class="side-buttons right">
+    <img src="4.png" alt="Button 4" />
+    <img src="5.png" alt="Button 5" />
+    <img src="6.png" alt="Button 6" />
+  </div>
+
+  <!-- Overlay -->
   <div id="overlay" class="overlay">
     <div class="panel">
       <h2>Enter passcode to view</h2>
@@ -107,7 +156,6 @@
       <div id="msg" class="msg"></div>
     </div>
   </div>
-</body>
 
 <script>
 const storedHash = "9b0eb22aef89516d6fb4b31ccf008a68abe0d10a3fc606316389613eccf96854"; // SHA-256("letmein123")
@@ -128,6 +176,8 @@ const msg = document.getElementById('msg');
 const overlay = document.getElementById('overlay');
 const mainImage = document.getElementById('mainImage');
 const submitBtn = document.getElementById('submitBtn');
+const leftBtns = document.querySelector('.side-buttons.left');
+const rightBtns = document.querySelector('.side-buttons.right');
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -141,7 +191,21 @@ form.addEventListener('submit', async (e) => {
       setTimeout(() => {
         overlay.classList.add('hidden');
         mainImage.classList.add('visible');
+        leftBtns.classList.add('visible');
+        rightBtns.classList.add('visible');
         input.value = "";
+
+        // Staggered PNG animation
+        [...leftBtns.querySelectorAll('img'), ...rightBtns.querySelectorAll('img')].forEach((img, i) => {
+          img.style.opacity = 0;
+          img.style.transform = "scale(0.8)";
+          setTimeout(() => {
+            img.style.transition = "opacity 600ms ease, transform 600ms ease";
+            img.style.opacity = 1;
+            img.style.transform = "scale(1)";
+          }, 800 + i * 100);
+        });
+
       }, 400);
     } else {
       msg.style.color = "#ffb3b3";

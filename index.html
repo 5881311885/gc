@@ -3,220 +3,93 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Protected PNG — Passcode</title>
+  <title>Side Buttons Layout</title>
   <style>
-    html,body {
-      height:100%;
-      margin:0;
-      font-family: system-ui, sans-serif;
-      background:#000;
-      color:#fff;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:flex-start;
-      overflow:hidden;
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
     }
 
-    .logo {
-      width:120px;
-      margin:20px auto 10px auto;
-      display:block;
-    }
-
-    .image-wrap {
-      flex:1;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      width:100%;
-    }
-    .main-image {
-      max-width:90%;
-      max-height:80%;
-      opacity:0;
-      transform: translateY(8px);
-      transition: opacity 900ms ease, transform 900ms ease;
-      pointer-events:none;
-      user-select:none;
-    }
-    .main-image.visible { opacity:1; transform: translateY(0); }
-
-    .overlay {
-      position:fixed;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(4px);
-      transition: opacity 600ms ease, visibility 600ms;
-      z-index:30;
-    }
-    .overlay.hidden { opacity:0; visibility:hidden; pointer-events:none; }
-
-    .panel {
-      width:320px; max-width:90%;
-      padding:22px;
-      border-radius:10px;
-      background: rgba(255,255,255,0.05);
-      text-align:center;
-    }
-    .panel h2 { margin:0 0 12px 0; font-size:18px; font-weight:600; }
-    .panel p { margin:0 0 16px 0; color:#ccc; font-size:13px; }
-
-    .input-row { display:flex; gap:8px; align-items:center; }
-    input[type="password"] {
-      flex:1; padding:10px 12px; border-radius:8px;
-      border:1px solid rgba(255,255,255,0.1);
-      background:rgba(255,255,255,0.05);
-      color:#fff;
-      font-size:15px;
-    }
-    button {
-      padding:10px 14px; border-radius:8px;
-      border:0; background:#28a; color:#fff;
-      font-weight:600; cursor:pointer;
-    }
-    .msg { margin-top:12px; height:18px; font-size:13px; color:#ffcccb; }
-
-    /* ===============================
-       3 ROWS × 2 COLUMNS GRID
-       =============================== */
-    .button-grid {
+    /* main wrapper for left/right sides */
+    .side-container {
       position: fixed;
-      top: 55%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-gap: 80px 220px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 800ms ease;
-      z-index: 10;
-    }
-    .button-grid.visible {
-      opacity: 1;
-      pointer-events: auto;
+      top: 50%;
+      width: 100%;
+      transform: translateY(-50%);
+      display: flex;
+      justify-content: space-between;
+      padding: 0 80px; /* distance from screen edges */
     }
 
-    .button-grid img {
-      width: 180px;
+    /* individual columns (left / right) */
+    .side {
+      display: flex;
+      flex-direction: column;
+      gap: 150px; /* vertical spacing */
+      align-items: center;
+    }
+
+    .side img {
+      width: 220px;
       height: auto;
-      border-radius: 14px;
-      cursor: pointer;
-      filter: brightness(0.9);
       opacity: 0;
-      transition: transform 0.8s ease, opacity 0.8s ease, filter 0.3s ease;
+      transition: transform 1s ease, opacity 1s ease;
+      filter: brightness(0.9);
+      cursor: pointer;
     }
 
-    /* Left side buttons start off-screen to left */
-    .button-grid img.left {
-      transform: translateX(-250px) scale(0.7);
-    }
-
-    /* Right side buttons start off-screen to right */
-    .button-grid img.right {
-      transform: translateX(250px) scale(0.7);
-    }
-
-    /* Hover effects */
-    .button-grid img:hover {
-      transform: scale(1.1);
+    .side img:hover {
+      transform: scale(1.15);
       filter: brightness(1.1);
+    }
+
+    /* Start positions (off-screen) */
+    .side.left img {
+      transform: translateX(-400px) scale(0.7);
+    }
+    .side.right img {
+      transform: translateX(400px) scale(0.7);
     }
   </style>
 </head>
 <body>
-  <img src="your-logo.gif" alt="Logo" class="logo" />
 
-  <div class="image-wrap">
-    <img id="mainImage" class="main-image" src="your-image.png" alt="Protected image" />
-  </div>
-
-  <!-- 3 rows × 2 columns of PNG buttons -->
-  <div id="buttonGrid" class="button-grid">
-    <img src="1.png" alt="1" class="left" />
-    <img src="4.png" alt="4" class="right" />
-    <img src="2.png" alt="2" class="left" />
-    <img src="5.png" alt="5" class="right" />
-    <img src="3.png" alt="3" class="left" />
-    <img src="6.png" alt="6" class="right" />
-  </div>
-
-  <!-- Overlay -->
-  <div id="overlay" class="overlay">
-    <div class="panel">
-      <h2>Enter passcode to view</h2>
-      <p>Type the passcode and press Unlock.</p>
-      <form id="passForm" onsubmit="return false;">
-        <div class="input-row">
-          <input id="passInput" type="password" placeholder="Passcode" required />
-          <button id="submitBtn" type="submit">Unlock</button>
-        </div>
-      </form>
-      <div id="msg" class="msg"></div>
+  <div class="side-container">
+    <div class="side left">
+      <img src="1.png" alt="1">
+      <img src="2.png" alt="2">
+      <img src="3.png" alt="3">
+    </div>
+    <div class="side right">
+      <img src="4.png" alt="4">
+      <img src="5.png" alt="5">
+      <img src="6.png" alt="6">
     </div>
   </div>
 
-<script>
-const storedHash = "9b0eb22aef89516d6fb4b31ccf008a68abe0d10a3fc606316389613eccf96854"; // SHA-256("letmein123")
+  <script>
+    // Animate pairs (1–4, 2–5, 3–6) sliding from sides
+    const leftImgs = document.querySelectorAll('.side.left img');
+    const rightImgs = document.querySelectorAll('.side.right img');
 
-function bufToHex(buffer) {
-  return Array.from(new Uint8Array(buffer))
-    .map(b => b.toString(16).padStart(2,'0')).join('');
-}
-async function sha256Hex(str) {
-  const data = new TextEncoder().encode(str);
-  const hashBuf = await crypto.subtle.digest('SHA-256', data);
-  return bufToHex(hashBuf);
-}
-
-const form = document.getElementById('passForm');
-const input = document.getElementById('passInput');
-const msg = document.getElementById('msg');
-const overlay = document.getElementById('overlay');
-const mainImage = document.getElementById('mainImage');
-const submitBtn = document.getElementById('submitBtn');
-const buttonGrid = document.getElementById('buttonGrid');
-
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  submitBtn.disabled = true;
-  msg.textContent = "Checking…";
-  try {
-    const h = await sha256Hex(input.value);
-    if (h === storedHash) {
-      msg.style.color = "#bfffc9";
-      msg.textContent = "Passcode accepted.";
+    function animatePair(i, delay) {
       setTimeout(() => {
-        overlay.classList.add('hidden');
-        mainImage.classList.add('visible');
-        buttonGrid.classList.add('visible');
-        input.value = "";
-
-        // Animate 3 rows (pairs) from sides
-        const imgs = buttonGrid.querySelectorAll('img');
-        for (let i = 0; i < imgs.length; i += 2) {
-          setTimeout(() => {
-            [imgs[i], imgs[i+1]].forEach(img => {
-              img.style.opacity = 1;
-              img.style.transform = "translateX(0) scale(1)";
-            });
-          }, 700 + i * 250);
-        }
-
-      }, 400);
-    } else {
-      msg.style.color = "#ffb3b3";
-      msg.textContent = "Incorrect passcode.";
-      input.focus();
+        leftImgs[i].style.opacity = 1;
+        leftImgs[i].style.transform = 'translateX(0) scale(1)';
+        rightImgs[i].style.opacity = 1;
+        rightImgs[i].style.transform = 'translateX(0) scale(1)';
+      }, delay);
     }
-  } finally {
-    submitBtn.disabled = false;
-  }
-});
-</script>
+
+    animatePair(0, 300);
+    animatePair(1, 800);
+    animatePair(2, 1300);
+  </script>
+
 </body>
 </html>
